@@ -1,0 +1,93 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: MSBuild
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: .
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+     - name: Setup Node.js environment
+
+  uses: actions/setup-node@v2.5.2
+
+  with:
+
+    # Set always-auth in npmrc
+
+    always-auth: # optional, default is false
+
+    # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
+
+    node-version: # optional
+
+    # File containing the version Spec of the version to use.  Examples: .nvmrc, .node-version
+
+    node-version-file: # optional
+
+    # Target architecture for Node to use. Examples: x86, x64. Will use system architecture by default.
+
+    architecture: # optional
+
+    # Set this option if you want the action to check for the latest available version that satisfies the version spec
+
+    check-latest: # optional
+
+    # Optional registry to set up for auth. Will set the registry in a project level .npmrc and .yarnrc file, and set up auth to read in from env.NODE_AUTH_TOKEN
+
+    registry-url: # optional
+
+    # Optional scope for authenticating against scoped registries
+
+    scope: # optional
+
+    # Used to pull node distributions from node-versions.  Since there's a default, this is typically not supplied by the user.
+
+    token: # optional, default is ${{ github.token }}
+
+    # Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm
+
+    cache: # optional
+
+    # Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies.
+
+    cache-dependency-path: # optional
+
+    # Deprecated. Use node-version instead. Will not be supported after October 1, 2019
+
+    version: # optional
