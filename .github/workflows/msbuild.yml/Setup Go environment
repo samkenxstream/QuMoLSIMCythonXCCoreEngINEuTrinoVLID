@@ -1,0 +1,77 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: MSBuild
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: .
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+    - name: Setup Go environment
+
+  uses: actions/setup-go@v4.0.1
+
+  with:
+
+    # The Go version to download (if necessary) and use. Supports semver spec and ranges.
+
+    go-version: # optional
+
+    # Path to the go.mod or go.work file.
+
+    go-version-file: # optional
+
+    # Set this option to true if you want the action to always check for the latest available version that satisfies the version spec
+
+    check-latest: # optional
+
+    # Used to pull node distributions from go-versions. Since there's a default, this is typically not supplied by the user. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
+
+    token: # optional, default is ${{ github.server_url == 'https://github.com' && github.token || '' }}
+
+    # Used to specify whether caching is needed. Set to true, if you'd like to enable caching.
+
+    cache: # optional, default is true
+
+    # Used to specify the path to a dependency file - go.sum
+
+    cache-dependency-path: # optional
+
+    # Target architecture for Go to use. Examples: x86, x64. Will use system architecture by default.
+
+    architecture: # optional
