@@ -1,0 +1,89 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: MSBuild
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: .
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+    - name: Setup Java JDK
+
+  uses: actions/setup-java@v1.4.4
+
+  with:
+
+    # The Java version to make available on the path. Takes a whole or semver Java version, or 1.x syntax (e.g. 1.8 => Java 8.x). Early access versions can be specified in the form of e.g. 14-ea, 14.0.0-ea, or 14.0.0-ea.28
+
+    java-version: 
+
+    # The package type (jre, jdk, jdk+fx)
+
+    java-package: # optional, default is jdk
+
+    # The architecture (x86, x64) of the package.
+
+    architecture: # optional, default is x64
+
+    # Path to where the compressed JDK is located. The path could be in your source repository or a local path on the agent.
+
+    jdkFile: # optional
+
+    # ID of the distributionManagement repository in the pom.xml file. Default is `github`
+
+    server-id: # optional, default is github
+
+    # Environment variable name for the username for authentication to the Apache Maven repository. Default is $GITHUB_ACTOR
+
+    server-username: # optional, default is GITHUB_ACTOR
+
+    # Environment variable name for password or token for authentication to the Apache Maven repository. Default is $GITHUB_TOKEN
+
+    server-password: # optional, default is GITHUB_TOKEN
+
+    # Path to where the settings.xml file will be written. Default is ~/.m2.
+
+    settings-path: # optional
+
+    # GPG private key to import. Default is empty string.
+
+    gpg-private-key: # optional
+
+    # Environment variable name for the GPG private key passphrase. Default is $GPG_PASSPHRASE.
+
+    gpg-passphrase: # optional
